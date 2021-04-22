@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 User=rustds
-ExecStart=/home/rustds/server/startserver.sh -configfile=serverconfig.xml -s
+ExecStart=/home/rustds/server/startserver.sh
 Restart=on-abort
 
 [Install]

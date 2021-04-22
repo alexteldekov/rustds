@@ -1,35 +1,31 @@
-#!/bin/sh
-cd "`dirname "$0"`"
+#!/bin/bash
+# Launches Rust Dedicated Server
+# Usage:
+#   ./rust_ds.sh
 
-PARAMS=$@
+set -e
 
-CONFIGFILE=
-while test $# -gt 0
-do
-	if [ `echo $1 | cut -c 1-12` = "-configfile=" ]; then
-		CONFIGFILE=`echo $1 | cut -c 13-`
-	fi
-	shift
-done
+# generate a random password from /dev/urandom
+function rand_password() {
+  tr -dc -- '-.~,<>[]{}@%()_+=0-9a-zA-Z' < /dev/urandom | head -c16;echo
+}
 
-if [ "$CONFIGFILE" = "" ]; then
-	echo "No config file specified. Call this script like this:"
-	echo "  ./startserver.sh -configfile=serverconfig.xml"
-	exit
-else
-	if [ -f "$CONFIGFILE" ]; then
-		echo Using config file: $CONFIGFILE
-	else
-		echo "Specified config file $CONFIGFILE does not exist."
-		exit
-	fi
+RUST_SERVER_DIR=/home/rustds/server
+
+if [ ! -f rcon_pass ]; then
+  touch /tmp/rcon_pass
+  chmod 600 /tmp/rcon_pass
+  rand_password > /tmp/rcon_pass
 fi
 
-export LD_LIBRARY_PATH=.
-#export MALLOC_CHECK_=0
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${RUST_SERVER_DIR}/RustDedicated_Data/Plugins/x86_64
 
-if [ "$(uname -m)" = "x86_64" ]; then
-	./7DaysToDieServer.x86_64 -logfile 7DaysToDieServer_Data/output_log__`date +%Y-%m-%d__%H-%M-%S`.txt -quit -batchmode -nographics -dedicated $PARAMS
-else
-	./7DaysToDieServer.x86 -logfile 7DaysToDieServer_Data/output_log__`date +%Y-%m-%d__%H-%M-%S`.txt -quit -batchmode -nographics -dedicated $PARAMS
-fi
+cd "${RUST_SERVER_DIR}"
+
+"${RUST_SERVER_DIR}"/RustDedicated \
+    -batchmode \
+    +server.secure 0 +server.encryption 0 +server.eac 0 \
+    +rcon.web 1 +rcon.port 28016 \
+    +rcon.password "$(< /tmp/rcon_pass)" 2>&1
+
+#    -logfile "${SCRIPT_DIR}"/output_log.txt \

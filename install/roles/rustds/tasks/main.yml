@@ -54,3 +54,41 @@
     executable: /bin/bash
   become_user: rustds
   ignore_errors: true
+
+- name: Install rustds systemd unit file
+  copy:
+    src=rustds.service
+    dest=/etc/systemd/system/rustds.service
+    owner=root
+    group=root
+    mode=0644
+    force=no
+  ignore_errors: true
+
+- name: Copy startup Script
+  copy:
+    src=startserver.sh
+    dest=/home/rustds/server/startserver.sh
+    owner=rustds
+    group=rustds
+    mode=0755
+    force=no
+  ignore_errors: true
+
+- name: Copy server.cfg
+  copy:
+    src=server.cfg
+    dest=/home/rustds/server/server/my_server_identity/cfg/server.cfg
+    owner=rustds
+    group=rustds
+    mode=0644
+    force=no
+  ignore_errors: true
+
+- name: Restart rustds service
+  command: systemctl restart rustds.service
+  ignore_errors: true
+
+- name: Enable rustds service
+  service: name=rustds state=started enabled=true
+  ignore_errors: true
