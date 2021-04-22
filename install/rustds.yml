@@ -1,0 +1,10 @@
+---
+#
+# Ansible playbook to install 7daystodie
+#
+
+- hosts: rustds
+  #remote_user: root
+  become: true
+  roles:
+    - { role: rustds }

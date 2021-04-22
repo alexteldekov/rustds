@@ -1,0 +1,56 @@
+---
+#
+# Install/run rust dedicated server
+#
+
+- name: Enable multiverse repository
+  apt_repository:
+    repo: "{{ item }}"
+  loop:
+    - "deb http://archive.ubuntu.com/ubuntu/ bionic multiverse"
+    - "deb http://archive.ubuntu.com/ubuntu/ bionic-updates multiverse"
+    - "deb http://security.ubuntu.com/ubuntu/ bionic-security multiverse"
+
+- name: Add i386 Architecture
+  command: dpkg --add-architecture i386
+  args:
+    creates: /var/lib/dpkg/arch
+  when: ansible_architecture != 'i386'
+  register: archrc
+
+- name: Update APT Cache for i386
+  apt:
+    update_cache: true
+  when: archrc is defined and archrc.changed
+
+- name: accept steam license
+  debconf:
+    name: "steam"
+    question: "steam/question"
+    value: "I AGREE"
+    vtype: "select"
+
+- name: Install steamcmd
+  apt: name=steamcmd state=latest
+
+############
+
+- name: Setup rustds user
+  user:
+    name=rustds shell=/sbin/nologin
+
+- name: Setup rustds server path
+  file:
+    path=/home/rustds/server
+    state=directory
+    owner=rustds
+    recurse=yes
+    mode=0755
+
+- name: Download game data
+  shell: "/usr/games/steamcmd +force_install_dir /home/rustds/server +login {{steam_user}} +app_update 258550 validate +quit"
+  args:
+    chdir: /home/rustds
+    executable: /bin/bash
+  become_user: rustds
+  ignore_errors: true

@@ -1,0 +1,12 @@
+[Unit]
+Description=rustds Service
+After=network.target
+
+[Service]
+Type=simple
+User=rustds
+ExecStart=/home/rustds/server/startserver.sh -configfile=serverconfig.xml -s
+Restart=on-abort
+
+[Install]
+WantedBy=multi-user.target
