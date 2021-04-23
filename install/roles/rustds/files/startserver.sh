@@ -21,11 +21,13 @@ fi
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${RUST_SERVER_DIR}/RustDedicated_Data/Plugins/x86_64
 
 cd "${RUST_SERVER_DIR}"
+ARGS=""
+# $(cat server/my_server_identity/cfg/server.cfg | sed -e 's/^/+/')
 
 "${RUST_SERVER_DIR}"/RustDedicated \
     -batchmode \
     +server.secure 0 +server.encryption 0 +server.eac 0 \
     +rcon.web 1 +rcon.port 28016 \
-    +rcon.password "$(< /tmp/rcon_pass)" 2>&1
+    +rcon.password "$(< /tmp/rcon_pass)" ${ARGS} 2>&1
 
 #    -logfile "${SCRIPT_DIR}"/output_log.txt \

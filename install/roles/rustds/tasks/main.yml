@@ -85,6 +85,16 @@
     force=no
   ignore_errors: true
 
+- name: Copy users.cfg
+  copy:
+    src=users.cfg
+    dest=/home/rustds/server/server/my_server_identity/cfg/users.cfg
+    owner=rustds
+    group=rustds
+    mode=0644
+    force=no
+  ignore_errors: true
+
 - name: Restart rustds service
   command: systemctl restart rustds.service
   ignore_errors: true
